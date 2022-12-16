@@ -1,6 +1,8 @@
-#include <iostream>
+#include "Products.h"
+#include "MarketUI.h"
+#include "Containers.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    MarketUI cor = *new MarketUI;
     return 0;
 }

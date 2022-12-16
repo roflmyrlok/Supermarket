@@ -1,0 +1,5 @@
+4
+shelve bread khlib 125g 17.12 white bread bulka 80g 16.12 cherry
+freezer milk randomName 500ml 15.12 13%fat milk vkysny 1000ml 16.12 5%fat
+shelve bread good 105g 13.12 white bread kyiv 810g 25.12 black
+refrigerator bread good 105g 13.12 white bread kyiv 810g 25.12 black
