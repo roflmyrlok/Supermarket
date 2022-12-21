@@ -13,11 +13,11 @@ using namespace std;
 
 class MarketSystem{
 public:
-    vector<Containers> wSpace;
+    vector<Containers*> wSpace;
     int containersN;
     int lastID;
     MarketSystem(string path){
-        wSpace = *new std::vector<Containers>;
+        wSpace = *new std::vector<Containers*>;
         lastID = 11111;
         std::fstream newFile;
         newFile.open(path, std::ios::in);
@@ -33,13 +33,12 @@ public:
                     std::vector<std::string> div;
                     tokenize(curr, delim, div);
                     int temp = CreateContainer(div[0]);
-                    for (int j = 0; j < wSpace.capacity(); ++j) {
-                        if (wSpace[j].containerId == temp) {
-                            for (int i = 1; i < div.capacity() - 5;) {
-                                wSpace[j].CreateProduct(div[i],div[i+1],div[i+2],div[i+3],div[i+4]);
+                    for (auto & j : wSpace) {
+                        if (j->containerId == temp) {
+                            for (int i = 1; i <= div.size() - 5;) {
+                                j->CreateProduct(div[i],div[i+1],div[i+2],div[i+3],div[i+4]);
                                 i += 5;
                             }
-                            break;
                         }
                     }
                     lastID++;
@@ -51,23 +50,23 @@ public:
     int CreateContainer(string type){
         lastID++;
         if (type == "freezer"){
-            Freezer l = *new Freezer(lastID);
+            auto* l = new Freezer(lastID);
             wSpace.push_back(l);
-            return l.containerId;
+            return l->containerId;
         }
 
         if (type == "refrigerator"){
-            Refrigerator l = *new Refrigerator(lastID);
+            auto* l = new Refrigerator(lastID);
             wSpace.push_back(l);
-            return l.containerId;
+            return l->containerId;
         }
 
         if (type == "shelve"){
-            Shelve l = *new Shelve(lastID);
+            auto* l = new Shelve(lastID);
             wSpace.push_back(l);
-            return l.containerId;
+            return l->containerId;
         }
-
+        return 0;
     }
     void tokenize(std::string const &str, const char delim,std::vector<std::string> &out){
         std::stringstream ss(str);
@@ -77,15 +76,41 @@ public:
         }
     }
 
-    void ViewAll(){
+    void ViewRefrigerator(){
         for (int i = 0; i < wSpace.capacity(); ++i) {
-            wSpace[i].viewByType("freezer");
-        }
+            auto* dt2_object = dynamic_cast<Refrigerator*>(wSpace[i]);
+            if (dt2_object != nullptr)
+            {
+                cout << "Refrigerator: " << endl;
+                for (auto & j : dt2_object->containerSpace) {
+                    cout << j->productName + ", ";
+                }
+                cout << endl;
+            }
+        }}
+    void ViewShelve(){
         for (int i = 0; i < wSpace.capacity(); ++i) {
-            wSpace[i].viewByType("shelve");
-        }
+            auto* dt2_object = dynamic_cast<Shelve*>(wSpace[i]);
+            if (dt2_object != nullptr)
+            {
+                cout << "Shelve: " << endl;
+                for (auto & j : dt2_object->containerSpace) {
+                    cout << j->productName + ", ";
+                }
+                cout << endl;
+            }
+        }}
+    void ViewFreezer(){
         for (int i = 0; i < wSpace.capacity(); ++i) {
-            wSpace[i].viewByType("refrigerator");
+            auto* dt2_object = dynamic_cast<Freezer*>(wSpace[i]);
+            if (dt2_object != nullptr)
+            {
+                cout << "Freezer: " << endl;
+                for (auto & j : dt2_object->containerSpace) {
+                    cout << j->productName + ", ";
+                }
+                cout << endl;
+            }
         }
     }
 };
@@ -114,23 +139,30 @@ public:
             }
             system("clear");
             if (n == ViewAll) {
-                dell.ViewAll();
+                dell.ViewFreezer();
+                dell.ViewRefrigerator();
+                dell.ViewShelve();
             }
             if (n == ViewByType){
+                std::cout << "enter type: ";
                 string type;
-                cout << "enter type: ";
-                getline(std::cin, type);
-                for (int i = 0; i < dell.wSpace.capacity(); ++i) {
-                    dell.wSpace[i].viewByType(type);
+                getline(std::cin,type);
+                if (type == "freezer"){
+                    dell.ViewFreezer();
                 }
-                cout << "\n";
+                if (type == "shelve"){
+                    dell.ViewShelve();
+                }
+                if (type == "refrigerator"){
+                    dell.ViewRefrigerator();
+                }
             }
             if (n == NextDay){
                 string date;
                 cout << "enter date: ";
                 getline(std::cin, date);
                 for (int i = 0; i < dell.wSpace.capacity(); ++i) {
-                    dell.wSpace[i].dellByDate(date);
+                    dell.wSpace[i]->dellByDate(date);
                 }
                 cout << "\n";
             }
@@ -142,10 +174,10 @@ public:
                 cout << "enter product name: ";
                 getline(std::cin, productName);
                 for (int i = 0; i < dell.wSpace.size(); ++i) {
-                    if (dell.wSpace[i].containerId == stoi(containerID)){
-                        for (int j = 0; j < dell.wSpace[i].containerSpace.size(); ++j) {
-                            if (dell.wSpace[i].containerSpace[j].productName == productName){
-                                dell.wSpace[i].containerSpace.erase(dell.wSpace[i].containerSpace.begin() + j);
+                    if (dell.wSpace[i]->containerId == stoi(containerID)){
+                        for (int j = 0; j < dell.wSpace[i]->containerSpace.size(); ++j) {
+                            if (dell.wSpace[i]->containerSpace[j]->productName == productName){
+                                dell.wSpace[i]->containerSpace.erase(dell.wSpace[i]->containerSpace.begin() + j);
                                 break;
                             }
                         }
@@ -173,8 +205,8 @@ public:
                 cout << "enter product property: ";
                 getline(std::cin, productProperty);
                 for (int i = 0; i < dell.wSpace.size(); ++i) {
-                    if (dell.wSpace[i].containerId == stoi(containerID)){
-                        dell.wSpace[i].CreateProduct(productType, productName, weight, dataEx, productProperty);
+                    if (dell.wSpace[i]->containerId == stoi(containerID)){
+                        dell.wSpace[i]->CreateProduct(productType, productName, weight, dataEx, productProperty);
                     }
                 }
             }
@@ -186,9 +218,22 @@ public:
                 cout << "enter product temperature: ";
                 getline(std::cin, temp);
                 for (int i = 0; i < dell.wSpace.size(); ++i) {
-                    if (dell.wSpace[i].containerId == stoi(containerID)){
-                        if (stoi(temp) < dell.wSpace[i].maxTemp && stoi(temp) > dell.wSpace[i].minTemp){
-                            dell.wSpace[i].temp = stoi(temp);
+                    if (dell.wSpace[i]->containerId == stoi(containerID)){
+                        auto* dt1_object = dynamic_cast<Freezer*>(dell.wSpace[i]);
+                        if (dt1_object != nullptr)
+                        {
+                            cout << "We've found an object of type refrigerator" << endl;
+                            if (stoi(temp) < dt1_object->maxTemp && stoi(temp) > dt1_object->minTemp){
+                                dt1_object->ChangeTemp(stoi(temp));
+                            }
+                            break;
+                        }
+                        auto* dt2_object = dynamic_cast<Refrigerator*>(dell.wSpace[i]);
+                        if (dt2_object != nullptr)
+                        {
+                            cout << "We've found an object of type refrigerator" << endl;
+                            dt2_object->ChangeTemp(stoi(temp));
+                            break;
                         }
                     }
                 }
@@ -205,14 +250,13 @@ public:
                 cout << "enter product name: ";
                 getline(std::cin, productName);
                 for (int i = 0; i < dell.wSpace.size(); ++i) {
-                    if (dell.wSpace[i].containerId == stoi(containerID)){
-                        for (int j = 0; j < dell.wSpace[i].containerSpace.size(); ++j) {
-                            if (dell.wSpace[i].containerSpace[j].productName == productName){
-                                productType = dell.wSpace[i].containerSpace[j].type;
-                                dataEx = dell.wSpace[i].containerSpace[j].expDate;
-                                weight = dell.wSpace[i].containerSpace[j].productWeight;
-                                productProperty = dell.wSpace[i].containerSpace[j].Property();
-                                dell.wSpace[i].containerSpace.erase(dell.wSpace[i].containerSpace.begin() + j);
+                    if (dell.wSpace[i]->containerId == stoi(containerID)){
+                        for (int j = 0; j < dell.wSpace[i]->containerSpace.size(); ++j) {
+                            if (dell.wSpace[i]->containerSpace[j]->productName == productName){
+                                dataEx = dell.wSpace[i]->containerSpace[j]->expDate;
+                                weight = dell.wSpace[i]->containerSpace[j]->productWeight;
+                                productProperty = dell.wSpace[i]->containerSpace[j]->Property();
+                                dell.wSpace[i]->containerSpace.erase(dell.wSpace[i]->containerSpace.begin() + j);
                                 break;
                             }
                         }
@@ -223,8 +267,8 @@ public:
                 cout << "enter new container ID: ";
                 getline(std::cin, newContainerID);
                 for (int i = 0; i < dell.wSpace.size(); ++i) {
-                    if (dell.wSpace[i].containerId == stoi(newContainerID)){
-                        dell.wSpace[i].CreateProduct(productType, productName, weight, dataEx, productProperty);
+                    if (dell.wSpace[i]->containerId == stoi(newContainerID)){
+                        dell.wSpace[i]->CreateProduct(productType, productName, weight, dataEx, productProperty);
                     }
                 }
             }
