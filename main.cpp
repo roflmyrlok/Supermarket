@@ -1,8 +1,10 @@
 #include "Products.h"
-#include "MarketUI.h"
+#include "MarketSystem.h"
 #include "Containers.h"
+#include "UI.h"
 
 int main() {
-    MarketUI cor = *new MarketUI;
+    UI cor = *new UI;
+    cor.StartWork();
     return 0;
 }

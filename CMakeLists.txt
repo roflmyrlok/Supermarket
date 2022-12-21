@@ -3,4 +3,4 @@ project(Supermarket)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Supermarket main.cpp Products.h Containers.h MarketUI.h)
+add_executable(Supermarket main.cpp Products.h Containers.h MarketSystem.h UI.h)
